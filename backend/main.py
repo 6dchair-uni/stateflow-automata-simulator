@@ -4,7 +4,8 @@
 # from automata.dfa import DFA, State, Transition
 # from automata.simulator import simulate
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+import time
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -23,6 +24,37 @@ app = FastAPI(title="Automata Lab")
 # Cache AI interpretations so repeated descriptions
 # do not consume another API request.
 interpretation_cache = {}
+
+# Simple per-IP rate limiter.
+# Keeps the portfolio deployment from making unlimited
+# AI requests through this backend.
+request_log = {}
+
+RATE_LIMIT = 10          # maximum AI requests
+RATE_WINDOW = 60         # per 60 seconds
+
+
+def check_rate_limit(request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+
+    timestamps = request_log.get(client_ip, [])
+
+    # Keep only requests inside the current window
+    timestamps = [
+        timestamp
+        for timestamp in timestamps
+        if now - timestamp < RATE_WINDOW
+    ]
+
+    if len(timestamps) >= RATE_LIMIT:
+        return False
+
+    timestamps.append(now)
+    request_log[client_ip] = timestamps
+
+    return True
+
 
 #ADDED FOR BACKEND ERROR, SAME WITH NEW IMPORT SET
 app.add_middleware(
@@ -219,7 +251,7 @@ def get_automaton():
     }   
 
 @app.post("/generate")
-def generate(request: GenerateRequest):
+def generate(request: GenerateRequest, http_request: Request):
     try:
         description = request.description.strip()
 
@@ -231,6 +263,18 @@ def generate(request: GenerateRequest):
             interpretation = interpretation_cache[description]
 
         else:
+            # ----------------------------------------
+            # Only new AI requests use the rate limit
+            # ----------------------------------------
+
+            if not check_rate_limit(http_request):
+                return {
+                    "error": (
+                        "Too many new generation requests. "
+                        "Please wait a moment before trying again."
+                    )
+                }
+
             # ----------------------------------------
             # Ask AI only when not cached
             # ----------------------------------------
@@ -317,7 +361,7 @@ def generate(request: GenerateRequest):
         error_message = str(error)
 
         # ----------------------------------------
-        # Friendly rate-limit message
+        # Friendly OpenAI rate-limit message
         # ----------------------------------------
 
         if (

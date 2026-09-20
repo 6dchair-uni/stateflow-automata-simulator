@@ -576,6 +576,18 @@ function App() {
           )}
         </section>
       </div>
+
+
+
+      <div className="automata-status">
+        <span>DFA & NFA supported </span>
+        <span>//</span>
+        <span className="status-development">
+          PDA support is coming soon
+        </span>
+      </div>
+
+
     <footer className="app-footer">
     © 2024–2026 6dchair
         <div className="footer-links">

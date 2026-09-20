@@ -616,3 +616,25 @@ code {
 .footer-links a:hover {
   color: #1d4ed8;
 }
+
+
+.automata-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0 10px;
+  font-size: 12px;
+  color: #71717a;
+}
+
+.status-development {
+  color: #a1a1aa;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 5px 0 4px;
+  font-size: 11px;
+  color: #a1a1aa;
+}

@@ -101,7 +101,7 @@ current_dfa = DFA(
 )
 
 
-@app.get("/")
+@app.get("/api")
 def root():
     return {
         "name": "Automata Lab",
@@ -133,7 +133,7 @@ def root():
 #             "error": str(error)
 #         }
 
-@app.post("/simulate")
+@app.post("/api/simulate")
 def run_simulation(request: SimulationRequest):
     try:
         automaton_data = request.automaton
@@ -250,7 +250,7 @@ def get_automaton():
         ],
     }   
 
-@app.post("/generate")
+@app.post("/api/generate")
 def generate(request: GenerateRequest, http_request: Request):
     try:
         description = request.description.strip()

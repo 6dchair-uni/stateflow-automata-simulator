@@ -45,7 +45,7 @@ function App() {
     setResult(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/generate", {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +92,7 @@ function App() {
     setIsPlaying(false);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/simulate", {
+      const response = await fetch("/api/simulate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
